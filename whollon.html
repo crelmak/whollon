@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Whollon — Whole in Yourself. Part of Everything.</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --void: #05060a;
+      --deep: #0b0e18;
+      --mid: #131829;
+      --ring: #1e2640;
+      --gold: #c8a96e;
+      --goldlight: #e8d4a8;
+      --cream: #f5f0e8;
+      --muted: #7a849e;
+      --accent: #5b7fce;
+      --glow: rgba(200, 169, 110, 0.15);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      background: var(--void);
+      color: var(--cream);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 3rem;
+      background: linear-gradient(to bottom, rgba(5,6,10,0.95), transparent);
+    }
+    .nav-logo {
+      font-size: 1.4rem;
+      letter-spacing: 0.18em;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--cream); }
+
+    /* ── HERO ── */
+    #hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .orbit-stage {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid;
+      transform-origin: center;
+    }
+    .ring-1 {
+      width: 120px; height: 120px;
+      border-color: rgba(200,169,110,0.6);
+      animation: spin 8s linear infinite;
+      box-shadow: 0 0 30px rgba(200,169,110,0.2), inset 0 0 30px rgba(200,169,110,0.05);
+    }
+    .ring-2 {
+      width: 240px; height: 240px;
+      border-color: rgba(200,169,110,0.35);
+      animation: spin-r 14s linear infinite;
+    }
+    .ring-3 {
+      width: 400px; height: 400px;
+      border-color: rgba(91,127,206,0.25);
+      animation: spin 22s linear infinite;
+    }
+    .ring-4 {
+      width: 580px; height: 580px;
+      border-color: rgba(91,127,206,0.15);
+      animation: spin-r 34s linear infinite;
+    }
+    .ring-5 {
+      width: 800px; height: 800px;
+      border-color: rgba(200,169,110,0.07);
+      animation: spin 55s linear infinite;
+    }
+    .ring-6 {
+      width: 1100px; height: 1100px;
+      border-color: rgba(91,127,206,0.05);
+      animation: spin-r 80s linear infinite;
+    }
+
+    /* dots on rings */
+    .ring::before, .ring::after {
+      content: '';
+      position: absolute;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      top: -3px; left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 10px var(--gold);
+    }
+    .ring::after { top: auto; bottom: -3px; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+    .ring-1::before { width: 8px; height: 8px; top: -4px; }
+    .ring-3::before, .ring-3::after, .ring-4::before, .ring-4::after,
+    .ring-5::before, .ring-5::after, .ring-6::before, .ring-6::after { display: none; }
+
+    /* core node */
+    .core {
+      position: absolute;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--goldlight), var(--gold));
+      box-shadow: 0 0 40px rgba(200,169,110,0.8), 0 0 80px rgba(200,169,110,0.3);
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes spin    { from { transform: rotate(0deg); }   to { transform: rotate(360deg); } }
+    @keyframes spin-r  { from { transform: rotate(0deg); }   to { transform: rotate(-360deg); } }
+    @keyframes pulse   { 0%,100% { transform: scale(1); box-shadow: 0 0 40px rgba(200,169,110,0.8), 0 0 80px rgba(200,169,110,0.3); }
+                         50%     { transform: scale(1.4); box-shadow: 0 0 60px rgba(200,169,110,1), 0 0 120px rgba(200,169,110,0.5); } }
+
+    /* starfield */
+    .stars {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 15% 20%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 72% 8%,  rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 43% 65%, rgba(255,255,255,0.35) 0%, transparent 100%),
+        radial-gradient(1px 1px at 88% 45%, rgba(255,255,255,0.25) 0%, transparent 100%),
+        radial-gradient(1px 1px at 5%  85%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 60% 90%, rgba(255,255,255,0.2) 0%, transparent 100%),
+        radial-gradient(1px 1px at 30% 50%, rgba(255,255,255,0.15) 0%, transparent 100%),
+        radial-gradient(2px 2px at 92% 78%, rgba(200,169,110,0.3) 0%, transparent 100%),
+        radial-gradient(2px 2px at 18% 58%, rgba(91,127,206,0.3) 0%, transparent 100%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      padding: 0 1rem;
+    }
+    .hero-eyebrow {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 2rem;
+      opacity: 0.85;
+    }
+    .hero-title {
+      font-size: clamp(4rem, 12vw, 9rem);
+      font-weight: normal;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      color: var(--cream);
+      margin-bottom: 1.5rem;
+    }
+    .hero-title span { color: var(--gold); }
+    .hero-sub {
+      font-size: clamp(1rem, 2.5vw, 1.35rem);
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 520px;
+      margin: 0 auto 3rem;
+      font-style: italic;
+    }
+    .hero-cta {
+      display: inline-block;
+      padding: 0.9rem 2.8rem;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      text-decoration: none;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      transition: background 0.35s, color 0.35s, box-shadow 0.35s;
+    }
+    .hero-cta:hover {
+      background: var(--gold);
+      color: var(--void);
+      box-shadow: 0 0 40px rgba(200,169,110,0.4);
+    }
+    .hero-scroll {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--muted);
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      animation: float 2.5s ease-in-out infinite;
+    }
+    .hero-scroll::after {
+      content: '';
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--muted), transparent);
+    }
+    @keyframes float { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+
+    /* ── CONCEPT BAND ── */
+    .band {
+      background: var(--deep);
+      border-top: 1px solid var(--ring);
+      border-bottom: 1px solid var(--ring);
+      padding: 1.5rem 3rem;
+      display: flex;
+      justify-content: center;
+      gap: 4rem;
+      flex-wrap: wrap;
+    }
+    .band-item {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .band-item::before {
+      content: '◆';
+      color: var(--gold);
+      font-size: 0.5rem;
+    }
+
+    /* ── SECTION BASE ── */
+    section { padding: 7rem 2rem; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+    }
+    .section-title {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: normal;
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+    .section-body {
+      font-size: 1.05rem;
+      color: var(--muted);
+      line-height: 1.85;
+      max-width: 620px;
+    }
+
+    /* ── WHAT IS A WHOLLON ── */
+    #what { background: var(--deep); }
+    .what-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+      margin-top: 0;
+    }
+    .holon-diagram {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+    .hd-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px dashed rgba(200,169,110,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hd-r1 { inset: 0; }
+    .hd-r2 { inset: 18%; border-color: rgba(200,169,110,0.4); }
+    .hd-r3 { inset: 36%; border-color: rgba(200,169,110,0.7); }
+    .hd-core {
+      position: absolute;
+      inset: 44%;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--goldlight), var(--gold) 60%, transparent);
+      box-shadow: 0 0 30px rgba(200,169,110,0.5);
+    }
+    .hd-label {
+      position: absolute;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .hd-label.cosmos  { top: 3%;  left: 50%; transform: translateX(-50%); }
+    .hd-label.society { top: 22%; left: 50%; transform: translateX(-50%); }
+    .hd-label.self    { top: 42%; left: 50%; transform: translateX(-50%); color: var(--gold); }
+
+    /* ── PILLARS ── */
+    #pillars { background: var(--void); }
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-top: 4rem;
+      border: 1px solid var(--ring);
+    }
+    .pillar {
+      background: var(--deep);
+      padding: 3rem 2.5rem;
+      border-right: 1px solid var(--ring);
+      transition: background 0.3s;
+      cursor: default;
+    }
+    .pillar:last-child { border-right: none; }
+    .pillar:hover { background: var(--mid); }
+    .pillar-icon {
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+      display: block;
+      filter: grayscale(0.3);
+    }
+    .pillar-num {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.62rem;
+      letter-spacing: 0.3em;
+      color: var(--gold);
+      margin-bottom: 0.75rem;
+      opacity: 0.7;
+    }
+    .pillar h3 {
+      font-size: 1.3rem;
+      font-weight: normal;
+      margin-bottom: 1rem;
+      color: var(--cream);
+    }
+    .pillar p {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    /* ── QUOTE ── */
+    #quote {
+      background: var(--mid);
+      border-top: 1px solid var(--ring);
+      border-bottom: 1px solid var(--ring);
+      text-align: center;
+      padding: 6rem 2rem;
+    }
+    blockquote {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    blockquote p {
+      font-size: clamp(1.2rem, 3vw, 1.9rem);
+      font-style: italic;
+      line-height: 1.6;
+      color: var(--cream);
+      margin-bottom: 2rem;
+    }
+    blockquote cite {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-style: normal;
+    }
+
+    /* ── MANIFESTO ── */
+    #manifesto { background: var(--void); }
+    .manifesto-list {
+      list-style: none;
+      margin-top: 3.5rem;
+      border-top: 1px solid var(--ring);
+    }
+    .manifesto-list li {
+      display: flex;
+      align-items: baseline;
+      gap: 2rem;
+      padding: 2rem 0;
+      border-bottom: 1px solid var(--ring);
+      transition: padding-left 0.3s;
+    }
+    .manifesto-list li:hover { padding-left: 0.75rem; }
+    .manifesto-num {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      flex-shrink: 0;
+      width: 2.5rem;
+    }
+    .manifesto-text {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      line-height: 1.6;
+      color: var(--cream);
+    }
+    .manifesto-text em { color: var(--gold); font-style: normal; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--void);
+      border-top: 1px solid var(--ring);
+      padding: 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-logo {
+      font-size: 1rem;
+      letter-spacing: 0.18em;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+    .footer-copy {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+    .footer-tagline {
+      font-style: italic;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .what-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .pillars-grid { grid-template-columns: 1fr; }
+      .pillar { border-right: none; border-bottom: 1px solid var(--ring); }
+      .pillar:last-child { border-bottom: none; }
+      .band { gap: 1.5rem; padding: 1.5rem; }
+      footer { flex-direction: column; text-align: center; }
+      .ring-5, .ring-6 { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Whollon</div>
+  <ul class="nav-links">
+    <li><a href="#what">The Concept</a></li>
+    <li><a href="#pillars">Pillars</a></li>
+    <li><a href="#manifesto">Manifesto</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="stars"></div>
+  <div class="orbit-stage">
+    <div class="ring ring-6"></div>
+    <div class="ring ring-5"></div>
+    <div class="ring ring-4"></div>
+    <div class="ring ring-3"></div>
+    <div class="ring ring-2"></div>
+    <div class="ring ring-1"></div>
+    <div class="core"></div>
+  </div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">A new way of being</p>
+    <h1 class="hero-title">Whol<span>lon</span></h1>
+    <p class="hero-sub">You are complete. You are also a piece of something far greater. Both of these are entirely true, at the same time.</p>
+    <a href="#what" class="hero-cta">Explore the Idea</a>
+  </div>
+  <div class="hero-scroll">Scroll</div>
+</section>
+
+<!-- BAND -->
+<div class="band">
+  <div class="band-item">Whole in yourself</div>
+  <div class="band-item">Part of each other</div>
+  <div class="band-item">Nested in the cosmos</div>
+  <div class="band-item">Never merely a fragment</div>
+</div>
+
+<!-- WHAT IS A WHOLLON -->
+<section id="what">
+  <div class="section-inner">
+    <div class="what-grid">
+      <div>
+        <p class="section-label">The Concept</p>
+        <h2 class="section-title">Neither atom.<br>Nor universe.<br>Both.</h2>
+        <p class="section-body">
+          Arthur Koestler coined the word <em>holon</em> — from the Greek <em>holos</em> (whole) and the suffix <em>-on</em> (particle). A holon is something that is simultaneously a self-contained whole and an inseparable part of something larger.
+        </p>
+        <br>
+        <p class="section-body">
+          <strong style="color:var(--cream)">Whollon</strong> takes this further. It is not merely a philosophical curiosity — it is a way of living. To be a Whollon is to stand fully in your own completeness while remaining in deep, honest relationship with the systems you belong to: your family, your community, your species, your world.
+        </p>
+        <br>
+        <p class="section-body" style="color:var(--gold); font-style:italic;">
+          You do not dissolve into the whole. You do not splinter from it. You hold both truths — and you grow.
+        </p>
+      </div>
+      <div class="holon-diagram">
+        <div class="hd-ring hd-r1">
+          <span class="hd-label cosmos">The Cosmos</span>
+        </div>
+        <div class="hd-ring hd-r2">
+          <span class="hd-label society">Collective</span>
+        </div>
+        <div class="hd-ring hd-r3">
+          <span class="hd-label self">Self</span>
+        </div>
+        <div class="hd-core"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PILLARS -->
+<section id="pillars">
+  <div class="section-inner">
+    <p class="section-label">Three Pillars</p>
+    <h2 class="section-title">The Whollon Way</h2>
+    <div class="pillars-grid">
+      <div class="pillar">
+        <span class="pillar-icon">◎</span>
+        <div class="pillar-num">01</div>
+        <h3>Sovereign Wholeness</h3>
+        <p>You are not a fragment waiting to be completed by others. Your inner life is coherent, bounded, and real. Begin there. Own that ground absolutely.</p>
+      </div>
+      <div class="pillar">
+        <span class="pillar-icon">⟳</span>
+        <div class="pillar-num">02</div>
+        <h3>Relational Belonging</h3>
+        <p>Wholeness is not isolation. Every whole thing exists within a larger pattern. Relationships are not compromises of self — they are how the self becomes fully legible.</p>
+      </div>
+      <div class="pillar">
+        <span class="pillar-icon">∞</span>
+        <div class="pillar-num">03</div>
+        <h3>Recursive Becoming</h3>
+        <p>The pattern repeats at every scale. Cells within bodies. Selves within societies. Societies within history. To understand one level is to understand all of them.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<section id="quote">
+  <blockquote>
+    <p>"The organism in its wholeness is more than the sum of its parts. The part in its particularity is more than a fragment of the whole. The holon is both."</p>
+    <cite>— after Arthur Koestler, The Ghost in the Machine, 1967</cite>
+  </blockquote>
+</section>
+
+<!-- MANIFESTO -->
+<section id="manifesto">
+  <div class="section-inner">
+    <p class="section-label">Manifesto</p>
+    <h2 class="section-title">What we believe</h2>
+    <ul class="manifesto-list">
+      <li>
+        <span class="manifesto-num">I</span>
+        <span class="manifesto-text">You are <em>already whole</em>. Not once you have achieved something. Not once someone has seen you. Now, as you are.</span>
+      </li>
+      <li>
+        <span class="manifesto-num">II</span>
+        <span class="manifesto-text">Belonging is not the same as <em>merging</em>. You can be deeply connected without losing the boundaries that make you coherent.</span>
+      </li>
+      <li>
+        <span class="manifesto-num">III</span>
+        <span class="manifesto-text">The self is not the smallest unit. Within you live <em>multitudes</em> — memories, roles, contradictions — each whole in their own right.</span>
+      </li>
+      <li>
+        <span class="manifesto-num">IV</span>
+        <span class="manifesto-text">Scale is not hierarchy. Being part of something larger does not make you <em>lesser</em>. The cell is not inferior to the body.</span>
+      </li>
+      <li>
+        <span class="manifesto-num">V</span>
+        <span class="manifesto-text">The deepest act of care for the whole is to <em>tend your own wholeness</em>. Fragmented parts make fragile systems.</span>
+      </li>
+      <li>
+        <span class="manifesto-num">VI</span>
+        <span class="manifesto-text">Everything you do <em>ripples outward</em>. Everything around you ripples in. There is no clean separation — only degrees of distance.</span>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Whollon</div>
+  <p class="footer-tagline">Whole in yourself. Part of everything.</p>
+  <p class="footer-copy">© 2026 Whollon. All scales reserved.</p>
+</footer>
+
+</body>
+</html>
