@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emergence — Whollon</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%2305060a'/><circle cx='16' cy='16' r='12' fill='none' stroke='%23c8a96e' stroke-width='1.5'/><circle cx='16' cy='16' r='6.5' fill='none' stroke='%23c8a96e' stroke-width='1'/><circle cx='16' cy='16' r='3' fill='%23c8a96e'/></svg>" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --void: #05060a;
+      --deep: #0b0e18;
+      --mid: #131829;
+      --ring: #1e2640;
+      --gold: #c8a96e;
+      --goldlight: #e8d4a8;
+      --cream: #f5f0e8;
+      --muted: #7a849e;
+      --accent: #5b7fce;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      background: var(--void);
+      color: var(--cream);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 3rem;
+      background: transparent;
+    }
+    .nav-logo {
+      font-size: 1.4rem;
+      letter-spacing: 0.18em;
+      color: var(--gold);
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--cream); }
+    .nav-links a.active { color: var(--gold); }
+
+    .mobile-back {
+      display: none;
+      padding: 1rem 1.5rem;
+      padding-top: 5rem;
+      text-align: center;
+    }
+    .mobile-back a {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-decoration: none;
+    }
+
+    /* ── HERO ── */
+    .play-hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .stars {
+      position: absolute; inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 75% 15%, rgba(255,255,255,0.2) 0%, transparent 100%),
+        radial-gradient(1px 1px at 50% 70%, rgba(255,255,255,0.2) 0%, transparent 100%),
+        radial-gradient(1px 1px at 30% 55%, rgba(255,255,255,0.15) 0%, transparent 100%),
+        radial-gradient(2px 2px at 85% 60%, rgba(200,169,110,0.2) 0%, transparent 100%),
+        radial-gradient(1px 1px at 62% 40%, rgba(91,127,206,0.2) 0%, transparent 100%);
+    }
+
+    /* animated particle cluster in hero background */
+    .emergence-bg {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0.18;
+    }
+    .emergence-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid var(--gold);
+    }
+    .er-1 { width: 120px; height: 120px; animation: spin 12s linear infinite; opacity: 0.6; }
+    .er-2 { width: 260px; height: 260px; animation: spin-r 20s linear infinite; opacity: 0.4; }
+    .er-3 { width: 440px; height: 440px; animation: spin 32s linear infinite; opacity: 0.25; border-color: var(--accent); }
+    .er-4 { width: 680px; height: 680px; animation: spin-r 50s linear infinite; opacity: 0.15; border-color: var(--accent); }
+
+    @keyframes spin    { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes spin-r  { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+
+    .hero-content { position: relative; z-index: 2; max-width: 700px; }
+    .hero-eyebrow {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.72rem; letter-spacing: 0.35em;
+      text-transform: uppercase; color: var(--gold);
+      margin-bottom: 1.5rem; opacity: 0.85;
+    }
+    .hero-title {
+      font-size: clamp(3rem, 9vw, 6.5rem);
+      font-weight: normal; letter-spacing: -0.02em;
+      color: var(--cream); margin-bottom: 1.5rem;
+      line-height: 1;
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--muted); line-height: 1.75;
+      max-width: 560px; margin: 0 auto 3rem;
+      font-style: italic;
+    }
+    .hero-scroll {
+      position: absolute;
+      bottom: 2.5rem; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column;
+      align-items: center; gap: 0.5rem;
+      color: var(--muted);
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.65rem; letter-spacing: 0.2em;
+      text-transform: uppercase;
+      animation: float 2.5s ease-in-out infinite;
+    }
+    .hero-scroll::after {
+      content: '';
+      width: 1px; height: 40px;
+      background: linear-gradient(to bottom, var(--muted), transparent);
+    }
+    @keyframes float {
+      0%,100% { transform: translateX(-50%) translateY(0); }
+      50%      { transform: translateX(-50%) translateY(6px); }
+    }
+
+    /* ── WHAT IS EMERGENCE ── */
+    .emergence-intro {
+      background: var(--deep);
+      border-top: 1px solid var(--ring);
+      padding: 6rem 2rem;
+    }
+    .intro-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 2px;
+      border: 1px solid var(--ring);
+    }
+    .intro-card {
+      background: var(--mid);
+      padding: 2.5rem 2rem;
+      border-right: 1px solid var(--ring);
+    }
+    .intro-card:last-child { border-right: none; }
+    .intro-card-num {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.58rem; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--gold);
+      margin-bottom: 0.75rem; opacity: 0.6;
+    }
+    .intro-card h3 {
+      font-size: 1.1rem; font-weight: normal;
+      color: var(--cream); margin-bottom: 0.75rem;
+    }
+    .intro-card p {
+      font-size: 0.88rem; color: var(--muted); line-height: 1.75;
+    }
+
+    /* ── SIMULATION SECTION ── */
+    .sim-section {
+      padding: 6rem 2rem 7rem;
+      border-top: 1px solid var(--ring);
+      background: var(--void);
+    }
+    .sim-inner { max-width: 1000px; margin: 0 auto; }
+
+    .sim-header { margin-bottom: 2.5rem; }
+    .sim-label {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.62rem; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--gold);
+      margin-bottom: 0.6rem; opacity: 0.7;
+    }
+    .sim-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: normal; color: var(--cream);
+      margin-bottom: 0.75rem;
+    }
+    .sim-desc {
+      font-size: 0.92rem; color: var(--muted);
+      line-height: 1.8; max-width: 620px;
+    }
+
+    /* ── CONTROLS ── */
+    .ctrl-bar {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+      align-items: center;
+    }
+    .ctrl-btn {
+      background: none;
+      border: 1px solid var(--ring);
+      color: var(--muted);
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.65rem; letter-spacing: 0.18em;
+      text-transform: uppercase; padding: 0.5rem 1rem;
+      cursor: pointer; transition: border-color 0.2s, color 0.2s;
+    }
+    .ctrl-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .ctrl-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(200,169,110,0.08); }
+    .ctrl-label {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.62rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--muted);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .ctrl-label input[type=range] {
+      accent-color: var(--gold);
+      width: 80px;
+    }
+    .stat-display {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.62rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--muted);
+      margin-left: auto;
+    }
+    .stat-display span { color: var(--gold); }
+
+    /* ── CANVAS WRAPPER ── */
+    .canvas-wrap {
+      position: relative;
+      border: 1px solid var(--ring);
+      overflow: hidden;
+      cursor: crosshair;
+    }
+    .canvas-wrap canvas { display: block; width: 100%; }
+    .canvas-hint {
+      position: absolute; bottom: 0.75rem; right: 0.75rem;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.58rem; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--muted);
+      opacity: 0.5; pointer-events: none;
+    }
+
+    /* ── INSIGHTS BELOW SIM ── */
+    .emergence-insights {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .insight-block {
+      padding: 1.5rem;
+      border: 1px solid var(--ring);
+      background: var(--deep);
+    }
+    .insight-block-label {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.58rem; letter-spacing: 0.25em;
+      text-transform: uppercase; color: var(--gold);
+      margin-bottom: 0.6rem; opacity: 0.6;
+    }
+    .insight-block p {
+      font-size: 0.88rem; color: var(--muted); line-height: 1.75;
+    }
+    .insight-block p em { color: var(--cream); font-style: normal; }
+
+    .sim-quote {
+      margin-top: 3rem;
+      padding: 1.5rem 2rem;
+      border-left: 2px solid var(--gold);
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--cream);
+      background: rgba(200,169,110,0.04);
+      line-height: 1.7;
+    }
+    .sim-quote cite {
+      display: block;
+      margin-top: 0.75rem;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.62rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--gold);
+      font-style: normal; opacity: 0.7;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--void); border-top: 1px solid var(--ring);
+      padding: 2.5rem 3rem; display: flex;
+      justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-logo {
+      font-size: 1rem; letter-spacing: 0.18em;
+      color: var(--gold); text-transform: uppercase;
+      text-decoration: none;
+    }
+    .footer-copy {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.68rem; color: var(--muted); letter-spacing: 0.08em;
+    }
+    .footer-tagline { font-style: italic; font-size: 0.8rem; color: var(--muted); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .mobile-back { display: block; }
+      .intro-inner { grid-template-columns: 1fr; }
+      .intro-card { border-right: none; border-bottom: 1px solid var(--ring); }
+      .intro-card:last-child { border-bottom: none; }
+      .emergence-insights { grid-template-columns: 1fr; }
+      footer { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">Whollon</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="explore.html">Explore</a></li>
+    <li><a href="journey.html">Journey</a></li>
+    <li><a href="play.html" class="active">Emergence</a></li>
+  </ul>
+</nav>
+
+<div class="mobile-back"><a href="index.html">← Back to Whollon</a></div>
+
+<!-- HERO -->
+<section class="play-hero">
+  <div class="stars"></div>
+  <div class="emergence-bg">
+    <div class="emergence-ring er-4"></div>
+    <div class="emergence-ring er-3"></div>
+    <div class="emergence-ring er-2"></div>
+    <div class="emergence-ring er-1"></div>
+  </div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">The Living Laboratory</p>
+    <h1 class="hero-title">Emergence</h1>
+    <p class="hero-sub">The whole behaves in ways no single part could predict. Watch it happen.</p>
+  </div>
+  <div class="hero-scroll">Explore</div>
+</section>
+
+<!-- WHAT IS EMERGENCE -->
+<section class="emergence-intro">
+  <div class="intro-inner">
+    <div class="intro-card">
+      <p class="intro-card-num">01 — The Rule</p>
+      <h3>Simple parts, complex whole</h3>
+      <p>Emergence happens when entities following simple local rules produce global patterns that none of them individually contain. The pattern is real — it just doesn't live inside any one part.</p>
+    </div>
+    <div class="intro-card">
+      <p class="intro-card-num">02 — The Surprise</p>
+      <h3>More than the sum</h3>
+      <p>Water is wet. Neither hydrogen nor oxygen is wet. Consciousness thinks. No neuron thinks. The new property is not hiding in the parts — it arises only in the relationship between them.</p>
+    </div>
+    <div class="intro-card">
+      <p class="intro-card-num">03 — The Holon</p>
+      <h3>Each part is also a whole</h3>
+      <p>What emerges is itself a holon: a new whole that becomes a part of something larger still. Emergence is how the holarchy grows — one layer of complexity building on the last.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SIMULATION: GAME OF LIFE -->
+<section class="sim-section" id="sim-emergence">
+  <div class="sim-inner">
+    <div class="sim-header">
+      <p class="sim-label">Conway's Game of Life — B3/S23</p>
+      <h2 class="sim-title">Watch Emergence Unfold</h2>
+      <p class="sim-desc">
+        Each cell is a holon — complete, bounded, alive or not. Each one follows a single rule: it lives or dies based on how many neighbours it has. Nothing more. Yet from this, gliders travel, oscillators pulse, and structures appear that no cell authored. This is emergence: order arising from relationship, not design.
+      </p>
+    </div>
+
+    <div class="ctrl-bar">
+      <button class="ctrl-btn" id="golPlayBtn">Play</button>
+      <button class="ctrl-btn" id="golStepBtn">Step</button>
+      <button class="ctrl-btn" id="golRandomBtn">Randomize</button>
+      <button class="ctrl-btn" id="golClearBtn">Clear</button>
+      <label class="ctrl-label">Speed <input type="range" id="golSpeed" min="1" max="20" value="8"></label>
+      <div class="stat-display">Generation <span id="golGen">0</span> &nbsp;|&nbsp; Alive <span id="golAlive">0</span></div>
+    </div>
+
+    <div class="canvas-wrap" id="golWrap">
+      <canvas id="golCanvas"></canvas>
+      <div class="canvas-hint">Click / drag to draw &nbsp;·&nbsp; Rules: B3/S23</div>
+    </div>
+
+    <div class="emergence-insights">
+      <div class="insight-block">
+        <p class="insight-block-label">The Glider</p>
+        <p>A glider crosses the grid without any single cell moving. The <em>pattern</em> travels — it is the holon, not the substrate. The cells are parts; the glider is the emergent whole.</p>
+      </div>
+      <div class="insight-block">
+        <p class="insight-block-label">The Rule</p>
+        <p>A live cell survives with <em>2 or 3 neighbours</em>. A dead cell becomes alive with exactly <em>3 neighbours</em>. That is everything. The entire complexity of this universe lives in those two lines.</p>
+      </div>
+      <div class="insight-block">
+        <p class="insight-block-label">Irreducibility</p>
+        <p>You cannot predict what patterns will appear by looking at any single cell. The global behaviour is <em>irreducible</em> to the local rules — you must run the system to see what it becomes.</p>
+      </div>
+      <div class="insight-block">
+        <p class="insight-block-label">Your Role</p>
+        <p>When you draw on the grid, you are not building the patterns — you are <em>setting initial conditions</em>. What emerges is not yours. You participated in something larger than your intention.</p>
+      </div>
+    </div>
+
+    <blockquote class="sim-quote">
+      "The most beautiful thing we can experience is the mysterious. It is the source of all true art and science. He to whom the emotion is a stranger, who can no longer pause to wonder and stand wrapped in awe, is as good as dead."
+      <cite>— Albert Einstein</cite>
+    </blockquote>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="index.html" class="footer-logo">Whollon</a>
+  <p class="footer-tagline">Whole in yourself. Part of everything.</p>
+  <p class="footer-copy">© 2026 Whollon.com</p>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════
+   GAME OF LIFE
+═══════════════════════════════════════════════ */
+(function() {
+  const CELL = 12;
+  const canvas = document.getElementById('golCanvas');
+  const wrap = document.getElementById('golWrap');
+  const ctx = canvas.getContext('2d');
+
+  let cols, rows, grid, nextGrid;
+  let running = false;
+  let timer = null;
+  let generation = 0;
+  let painting = false;
+  let paintValue = 1;
+
+  function resize() {
+    const w = wrap.clientWidth;
+    const h = Math.round(w * 0.5);
+    canvas.width = w;
+    canvas.height = h;
+    cols = Math.floor(w / CELL);
+    rows = Math.floor(h / CELL);
+    grid = makeGrid();
+    nextGrid = makeGrid();
+    generation = 0;
+    updateStats();
+    draw();
+  }
+
+  function makeGrid() {
+    return Array.from({length: rows}, () => new Uint8Array(cols));
+  }
+
+  function randomize() {
+    for (let r = 0; r < rows; r++)
+      for (let c = 0; c < cols; c++)
+        grid[r][c] = Math.random() > 0.72 ? 1 : 0;
+    generation = 0;
+    updateStats();
+    draw();
+  }
+
+  function clear() {
+    grid = makeGrid();
+    generation = 0;
+    updateStats();
+    draw();
+  }
+
+  function step() {
+    let alive = 0;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        let n = 0;
+        for (let dr = -1; dr <= 1; dr++)
+          for (let dc = -1; dc <= 1; dc++) {
+            if (dr === 0 && dc === 0) continue;
+            n += grid[(r + dr + rows) % rows][(c + dc + cols) % cols];
+          }
+        const was = grid[r][c];
+        nextGrid[r][c] = (was && (n === 2 || n === 3)) || (!was && n === 3) ? 1 : 0;
+        alive += nextGrid[r][c];
+      }
+    }
+    [grid, nextGrid] = [nextGrid, grid];
+    generation++;
+    document.getElementById('golAlive').textContent = alive;
+    document.getElementById('golGen').textContent = generation;
+    draw();
+  }
+
+  function updateStats() {
+    let alive = 0;
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) alive += grid[r][c];
+    document.getElementById('golAlive').textContent = alive;
+    document.getElementById('golGen').textContent = generation;
+  }
+
+  function draw() {
+    ctx.fillStyle = '#0b0e18';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#c8a96e';
+    for (let r = 0; r < rows; r++)
+      for (let c = 0; c < cols; c++)
+        if (grid[r][c])
+          ctx.fillRect(c * CELL + 1, r * CELL + 1, CELL - 2, CELL - 2);
+  }
+
+  function getSpeed() {
+    const v = parseInt(document.getElementById('golSpeed').value);
+    return Math.round(1000 / v);
+  }
+
+  function startStop() {
+    running = !running;
+    const btn = document.getElementById('golPlayBtn');
+    btn.textContent = running ? 'Pause' : 'Play';
+    btn.classList.toggle('active', running);
+    if (running) {
+      const tick = () => { step(); timer = setTimeout(tick, getSpeed()); };
+      timer = setTimeout(tick, getSpeed());
+    } else {
+      clearTimeout(timer);
+    }
+  }
+
+  function getCellPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+    return [Math.floor(y / CELL), Math.floor(x / CELL)];
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    const [r, c] = getCellPos(e);
+    if (r < 0 || r >= rows || c < 0 || c >= cols) return;
+    paintValue = grid[r][c] ? 0 : 1;
+    painting = true;
+    grid[r][c] = paintValue;
+    updateStats();
+    draw();
+  });
+  canvas.addEventListener('mousemove', e => {
+    if (!painting) return;
+    const [r, c] = getCellPos(e);
+    if (r < 0 || r >= rows || c < 0 || c >= cols) return;
+    grid[r][c] = paintValue;
+    updateStats();
+    draw();
+  });
+  window.addEventListener('mouseup', () => { painting = false; });
+
+  document.getElementById('golPlayBtn').addEventListener('click', startStop);
+  document.getElementById('golStepBtn').addEventListener('click', () => { if (!running) step(); });
+  document.getElementById('golRandomBtn').addEventListener('click', randomize);
+  document.getElementById('golClearBtn').addEventListener('click', clear);
+
+  window.addEventListener('resize', () => {
+    const wasRunning = running;
+    if (running) { running = false; clearTimeout(timer); }
+    resize();
+    if (wasRunning) startStop();
+  });
+
+  resize();
+  randomize();
+})();
+</script>
+
+</body>
+</html>

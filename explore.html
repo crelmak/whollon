@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Explore — Whollon</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%2305060a'/><circle cx='16' cy='16' r='12' fill='none' stroke='%23c8a96e' stroke-width='1.5'/><circle cx='16' cy='16' r='6.5' fill='none' stroke='%23c8a96e' stroke-width='1'/><circle cx='16' cy='16' r='3' fill='%23c8a96e'/></svg>" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --void: #05060a;
+      --deep: #0b0e18;
+      --mid: #131829;
+      --ring: #1e2640;
+      --gold: #c8a96e;
+      --goldlight: #e8d4a8;
+      --cream: #f5f0e8;
+      --muted: #7a849e;
+      --accent: #5b7fce;
+      --glow: rgba(200, 169, 110, 0.15);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      background: var(--void);
+      color: var(--cream);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 3rem;
+      background: transparent;
+    }
+    .nav-logo {
+      font-size: 1.4rem;
+      letter-spacing: 0.18em;
+      color: var(--gold);
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--cream); }
+
+    /* ── MOBILE BACK LINK ── */
+    .mobile-back {
+      display: none;
+      padding: 1rem 1.5rem;
+      padding-top: 5rem;
+      text-align: center;
+    }
+    .mobile-back a {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-decoration: none;
+    }
+
+    /* ── HERO ── */
+    .explore-hero {
+      position: relative;
+      min-height: 60vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+      padding: 8rem 2rem 4rem;
+    }
+
+    .orbit-stage {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid;
+      transform-origin: center;
+    }
+    .ring-1 {
+      width: 80px; height: 80px;
+      border-color: rgba(200,169,110,0.6);
+      animation: spin 8s linear infinite;
+      box-shadow: 0 0 20px rgba(200,169,110,0.2), inset 0 0 20px rgba(200,169,110,0.05);
+    }
+    .ring-2 {
+      width: 160px; height: 160px;
+      border-color: rgba(200,169,110,0.35);
+      animation: spin-r 14s linear infinite;
+    }
+    .ring-3 {
+      width: 280px; height: 280px;
+      border-color: rgba(91,127,206,0.25);
+      animation: spin 22s linear infinite;
+    }
+    .ring-4 {
+      width: 420px; height: 420px;
+      border-color: rgba(91,127,206,0.12);
+      animation: spin-r 34s linear infinite;
+    }
+
+    .ring::before, .ring::after {
+      content: '';
+      position: absolute;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--gold);
+      top: -2.5px; left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 8px var(--gold);
+    }
+    .ring::after { top: auto; bottom: -2.5px; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+    .ring-3::before, .ring-3::after, .ring-4::before, .ring-4::after { display: none; }
+
+    .core {
+      position: absolute;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--goldlight), var(--gold));
+      box-shadow: 0 0 30px rgba(200,169,110,0.8), 0 0 60px rgba(200,169,110,0.3);
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    .stars {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 80% 15%, rgba(255,255,255,0.25) 0%, transparent 100%),
+        radial-gradient(1px 1px at 55% 70%, rgba(255,255,255,0.2) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,0.15) 0%, transparent 100%),
+        radial-gradient(2px 2px at 25% 85%, rgba(200,169,110,0.2) 0%, transparent 100%);
+    }
+
+    @keyframes spin    { from { transform: rotate(0deg); }   to { transform: rotate(360deg); } }
+    @keyframes spin-r  { from { transform: rotate(0deg); }   to { transform: rotate(-360deg); } }
+    @keyframes pulse   {
+      0%,100% { transform: scale(1); box-shadow: 0 0 30px rgba(200,169,110,0.8), 0 0 60px rgba(200,169,110,0.3); }
+      50%     { transform: scale(1.4); box-shadow: 0 0 50px rgba(200,169,110,1), 0 0 100px rgba(200,169,110,0.5); }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+    }
+    .hero-eyebrow {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+      opacity: 0.85;
+    }
+    .hero-title {
+      font-size: clamp(2.5rem, 7vw, 5rem);
+      font-weight: normal;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: var(--cream);
+      margin-bottom: 1rem;
+    }
+    .hero-sub {
+      font-size: clamp(0.95rem, 2vw, 1.15rem);
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 480px;
+      margin: 0 auto;
+      font-style: italic;
+    }
+
+    /* ── TABS ── */
+    .tabs-section {
+      background: var(--deep);
+      padding: 5rem 2rem 7rem;
+    }
+    .tabs-inner { max-width: 900px; margin: 0 auto; }
+
+    .tab-nav {
+      display: flex;
+      border-bottom: 1px solid var(--ring);
+      margin-bottom: 3rem;
+      gap: 0;
+    }
+    .tab-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      padding: 1.25rem 1rem;
+      cursor: pointer;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.3s, border-color 0.3s;
+      text-align: center;
+    }
+    .tab-btn:hover { color: var(--cream); }
+    .tab-btn.active {
+      color: var(--gold);
+      border-bottom-color: var(--gold);
+    }
+    .tab-btn .tab-num {
+      display: block;
+      font-size: 0.55rem;
+      letter-spacing: 0.3em;
+      color: var(--gold);
+      opacity: 0.5;
+      margin-bottom: 0.4rem;
+    }
+    .tab-btn.active .tab-num { opacity: 1; }
+
+    .tab-panels { position: relative; }
+    .tab-panel {
+      display: none;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .tab-panel.active {
+      display: block;
+    }
+    .tab-panel.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .panel-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .panel-label {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+      opacity: 0.7;
+    }
+    .panel-title {
+      font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+      font-weight: normal;
+      color: var(--cream);
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+    }
+    .panel-desc {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.85;
+      margin-bottom: 2rem;
+    }
+
+    .panel-quote {
+      border-left: 2px solid var(--ring);
+      padding: 1rem 1.5rem;
+      margin-bottom: 2rem;
+      background: rgba(30,38,64,0.4);
+    }
+    .panel-quote p {
+      font-style: italic;
+      color: var(--cream);
+      font-size: 0.92rem;
+      line-height: 1.65;
+      margin-bottom: 0.5rem;
+    }
+    .panel-quote cite {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.62rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-style: normal;
+      opacity: 0.7;
+    }
+
+    /* ── REFLECTION ── */
+    .reflection {
+      margin-bottom: 2rem;
+    }
+    .reflection-q {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+    .reflection-prompt {
+      background: var(--mid);
+      border: 1px solid var(--ring);
+      padding: 1rem 1.25rem;
+      font-style: italic;
+      font-size: 0.95rem;
+      color: var(--cream);
+      line-height: 1.6;
+      margin-bottom: 0.75rem;
+    }
+    .reveal-btn {
+      background: none;
+      border: 1px solid var(--ring);
+      color: var(--muted);
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.6rem 1.25rem;
+      cursor: pointer;
+      transition: border-color 0.3s, color 0.3s;
+    }
+    .reveal-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .reveal-answer {
+      display: none;
+      margin-top: 0.75rem;
+      padding: 1rem 1.25rem;
+      background: rgba(200,169,110,0.06);
+      border-left: 2px solid var(--gold);
+      font-size: 0.9rem;
+      color: var(--cream);
+      line-height: 1.7;
+    }
+    .reveal-answer.shown { display: block; }
+
+    /* ── DIAGRAM ── */
+    .panel-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .diagram-sovereign {
+      position: relative;
+      width: 240px;
+      height: 240px;
+    }
+    .diag-outer {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(200,169,110,0.2);
+    }
+    .diag-mid {
+      position: absolute;
+      inset: 20%;
+      border-radius: 50%;
+      border: 1px solid rgba(200,169,110,0.4);
+    }
+    .diag-inner {
+      position: absolute;
+      inset: 40%;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--goldlight) 0%, var(--gold) 50%, transparent 100%);
+      box-shadow: 0 0 20px rgba(200,169,110,0.5);
+      animation: pulse 3s ease-in-out infinite;
+    }
+    .diag-label {
+      position: absolute;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.55rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      top: 6%;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+    }
+
+    .diagram-relational {
+      position: relative;
+      width: 260px;
+      height: 220px;
+    }
+    .node {
+      position: absolute;
+      width: 50px; height: 50px;
+      border-radius: 50%;
+      border: 1px solid rgba(200,169,110,0.5);
+      background: radial-gradient(circle, rgba(200,169,110,0.15), transparent);
+    }
+    .node-center { top: 50%; left: 50%; transform: translate(-50%,-50%); border-color: var(--gold); background: radial-gradient(circle, rgba(200,169,110,0.3), transparent); }
+    .node-tl { top: 10%; left: 10%; }
+    .node-tr { top: 10%; right: 10%; }
+    .node-bl { bottom: 10%; left: 10%; }
+    .node-br { bottom: 10%; right: 10%; }
+    .conn {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 90px;
+      height: 1px;
+      background: linear-gradient(to right, var(--gold), transparent);
+      transform-origin: left center;
+      opacity: 0.3;
+    }
+    .conn-1 { transform: rotate(-45deg); }
+    .conn-2 { transform: rotate(45deg); }
+    .conn-3 { transform: rotate(135deg); }
+    .conn-4 { transform: rotate(-135deg); }
+
+    .diagram-recursive {
+      position: relative;
+      width: 240px;
+      height: 240px;
+    }
+    .rec-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px dashed rgba(200,169,110,0.15);
+    }
+    .rec-r1 { inset: 0; border-color: rgba(200,169,110,0.1); }
+    .rec-r2 { inset: 15%; border-color: rgba(200,169,110,0.2); }
+    .rec-r3 { inset: 30%; border-color: rgba(200,169,110,0.35); }
+    .rec-r4 { inset: 45%; border-color: rgba(200,169,110,0.55); }
+    .rec-core {
+      position: absolute;
+      inset: 43%;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--goldlight), var(--gold));
+      box-shadow: 0 0 15px rgba(200,169,110,0.7);
+      animation: pulse 3s ease-in-out infinite;
+    }
+    .rec-labels span {
+      position: absolute;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.5rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .rec-labels .lbl-cosmos { top: 2%; left: 50%; transform: translateX(-50%); }
+    .rec-labels .lbl-society { top: 17%; left: 50%; transform: translateX(-50%); }
+    .rec-labels .lbl-self { top: 32%; left: 50%; transform: translateX(-50%); color: var(--gold); }
+    .rec-labels .lbl-inner { top: 47%; left: 50%; transform: translateX(-50%); color: var(--goldlight); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--void);
+      border-top: 1px solid var(--ring);
+      padding: 2.5rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-logo {
+      font-size: 1rem;
+      letter-spacing: 0.18em;
+      color: var(--gold);
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .footer-copy {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+    .footer-tagline {
+      font-style: italic;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .mobile-back { display: block; }
+      .panel-layout { grid-template-columns: 1fr; gap: 2rem; }
+      .tab-btn { font-size: 0.6rem; padding: 1rem 0.5rem; }
+      footer { flex-direction: column; text-align: center; }
+      .ring-4 { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">Whollon</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="explore.html" class="active">Explore</a></li>
+    <li><a href="journey.html">Journey</a></li>
+    <li><a href="play.html">Emergence</a></li>
+  </ul>
+</nav>
+
+<div class="mobile-back"><a href="index.html">← Back to Whollon</a></div>
+
+<!-- HERO -->
+<section class="explore-hero">
+  <div class="stars"></div>
+  <div class="orbit-stage">
+    <div class="ring ring-4"></div>
+    <div class="ring ring-3"></div>
+    <div class="ring ring-2"></div>
+    <div class="ring ring-1"></div>
+    <div class="core"></div>
+  </div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Philosophy Explorer</p>
+    <h1 class="hero-title">The Three Pillars</h1>
+    <p class="hero-sub">Go deeper into the ideas that form the foundation of Whollon thinking.</p>
+  </div>
+</section>
+
+<!-- TABS -->
+<div class="tabs-section">
+  <div class="tabs-inner">
+
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="sovereign">
+        <span class="tab-num">01</span>
+        Sovereign Wholeness
+      </button>
+      <button class="tab-btn" data-tab="relational">
+        <span class="tab-num">02</span>
+        Relational Belonging
+      </button>
+      <button class="tab-btn" data-tab="recursive">
+        <span class="tab-num">03</span>
+        Recursive Becoming
+      </button>
+    </div>
+
+    <div class="tab-panels">
+
+      <!-- PANEL 1: Sovereign Wholeness -->
+      <div class="tab-panel active" id="panel-sovereign">
+        <div class="panel-layout">
+          <div>
+            <p class="panel-label">Pillar One</p>
+            <h2 class="panel-title">Sovereign Wholeness</h2>
+            <p class="panel-desc">
+              You are not a rough draft waiting to be finished by the right relationship, achievement, or audience. You arrive already complete — a coherent system with its own interior logic, boundaries, and reality. This is not arrogance. It is an accurate description of what a holon is.
+            </p>
+            <p class="panel-desc">
+              Sovereign wholeness asks you to stop treating your inner life as provisional. Your emotions, values, perceptions, and contradictions are not fragments in need of correction — they are the stuff of which a whole self is made. You own this ground absolutely, and from it, you may reach outward.
+            </p>
+
+            <div class="panel-quote">
+              <p>"The privilege of a lifetime is to become who you truly are."</p>
+              <cite>— C.G. Jung</cite>
+            </div>
+
+            <div class="reflection">
+              <p class="reflection-q">Reflection</p>
+              <p class="reflection-prompt">Where in your life do you act as though your completeness is conditional — waiting on something external to make you whole?</p>
+              <button class="reveal-btn" onclick="toggleReveal(this)">Reveal Insight</button>
+              <div class="reveal-answer">
+                Notice the pattern, not with judgment, but with curiosity. Conditional wholeness is a habit of thought, not a feature of reality. The holon does not wait to become a holon — it simply is one. The work is learning to recognize what was already true.
+              </div>
+            </div>
+          </div>
+          <div class="panel-diagram">
+            <div class="diagram-sovereign">
+              <div class="diag-outer"></div>
+              <div class="diag-mid"></div>
+              <div class="diag-inner"></div>
+              <span class="diag-label">Bounded Self</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 2: Relational Belonging -->
+      <div class="tab-panel" id="panel-relational">
+        <div class="panel-layout">
+          <div>
+            <p class="panel-label">Pillar Two</p>
+            <h2 class="panel-title">Relational Belonging</h2>
+            <p class="panel-desc">
+              Wholeness is not the same as isolation. To be a holon is to exist in relation — embedded in systems larger than yourself, in relationship with other wholes who are equally complete. Your connections do not compromise your sovereignty; they reveal it.
+            </p>
+            <p class="panel-desc">
+              Relational belonging is the practice of entering relationships from fullness rather than lack. You do not need others to complete you. You bring your completeness into contact with theirs — and in that contact, something new and irreducible emerges: a higher-order holon.
+            </p>
+
+            <div class="panel-quote">
+              <p>"I am not an I without a thou. The self becomes itself through encounter."</p>
+              <cite>— Martin Buber, paraphrased from I and Thou, 1923</cite>
+            </div>
+
+            <div class="reflection">
+              <p class="reflection-q">Reflection</p>
+              <p class="reflection-prompt">In your closest relationships, do you show up as a whole person — or do you arrive hoping to receive what you believe is missing in you?</p>
+              <button class="reveal-btn" onclick="toggleReveal(this)">Reveal Insight</button>
+              <div class="reveal-answer">
+                The deepest relationships are not transactions of lack. They are meetings of wholes. When two people each bring their full selves — boundaries, complexity, and all — the relationship becomes more than the sum of its parts. That emergence is what holons do.
+              </div>
+            </div>
+          </div>
+          <div class="panel-diagram">
+            <div class="diagram-relational">
+              <div class="node node-center"></div>
+              <div class="node node-tl"></div>
+              <div class="node node-tr"></div>
+              <div class="node node-bl"></div>
+              <div class="node node-br"></div>
+              <div class="conn conn-1"></div>
+              <div class="conn conn-2"></div>
+              <div class="conn conn-3"></div>
+              <div class="conn conn-4"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 3: Recursive Becoming -->
+      <div class="tab-panel" id="panel-recursive">
+        <div class="panel-layout">
+          <div>
+            <p class="panel-label">Pillar Three</p>
+            <h2 class="panel-title">Recursive Becoming</h2>
+            <p class="panel-desc">
+              The holon structure is not unique to persons. It is the pattern of existence itself, repeating at every scale: particles within atoms, atoms within molecules, molecules within cells, cells within bodies, bodies within societies, societies within the cosmos. The same logic applies everywhere.
+            </p>
+            <p class="panel-desc">
+              To understand yourself as a holon is to recognize that you are simultaneously the container and the contained — a whole that holds multitudes within, and a part embedded within something beyond your knowing. Growth at any level ripples through every other.
+            </p>
+
+            <div class="panel-quote">
+              <p>"The whole is in the part, and the part is in the whole. That is the nature of the holon — irreducibly both."</p>
+              <cite>— after Arthur Koestler, The Ghost in the Machine, 1967</cite>
+            </div>
+
+            <div class="reflection">
+              <p class="reflection-q">Reflection</p>
+              <p class="reflection-prompt">What pattern in your life — in how you relate, create, or resist — seems to repeat at multiple scales? At home and at work? Within yourself and in the world?</p>
+              <button class="reveal-btn" onclick="toggleReveal(this)">Reveal Insight</button>
+              <div class="reveal-answer">
+                Recursive patterns are not traps — they are information. When you see the same structure appearing at multiple levels of your life, you have found something load-bearing. Changing it at one level changes it at all levels. That is both the challenge and the power of recursive becoming.
+              </div>
+            </div>
+          </div>
+          <div class="panel-diagram">
+            <div class="diagram-recursive">
+              <div class="rec-ring rec-r1"></div>
+              <div class="rec-ring rec-r2"></div>
+              <div class="rec-ring rec-r3"></div>
+              <div class="rec-ring rec-r4"></div>
+              <div class="rec-core"></div>
+              <div class="rec-labels">
+                <span class="lbl-cosmos">Cosmos</span>
+                <span class="lbl-society">Society</span>
+                <span class="lbl-self">Self</span>
+                <span class="lbl-inner">Inner Life</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end tab-panels -->
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <a href="index.html" class="footer-logo">Whollon</a>
+  <p class="footer-tagline">Whole in yourself. Part of everything.</p>
+  <p class="footer-copy">© 2026 Whollon.com</p>
+</footer>
+
+<script>
+  // Tab switching
+  const btns = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.tab-panel');
+
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+
+      btns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      panels.forEach(p => {
+        p.classList.remove('active', 'visible');
+      });
+
+      const panel = document.getElementById('panel-' + target);
+      panel.classList.add('active');
+      // Trigger transition on next frame
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => panel.classList.add('visible'));
+      });
+    });
+  });
+
+  // Initialize first panel as visible
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.querySelector('.tab-panel.active').classList.add('visible');
+    });
+  });
+
+  // Reflection reveal
+  function toggleReveal(btn) {
+    const answer = btn.nextElementSibling;
+    const shown = answer.classList.toggle('shown');
+    btn.textContent = shown ? 'Hide Insight' : 'Reveal Insight';
+  }
+</script>
+
+</body>
+</html>

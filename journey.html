@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Journey — Whollon</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%2305060a'/><circle cx='16' cy='16' r='12' fill='none' stroke='%23c8a96e' stroke-width='1.5'/><circle cx='16' cy='16' r='6.5' fill='none' stroke='%23c8a96e' stroke-width='1'/><circle cx='16' cy='16' r='3' fill='%23c8a96e'/></svg>" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --void: #05060a;
+      --deep: #0b0e18;
+      --mid: #131829;
+      --ring: #1e2640;
+      --gold: #c8a96e;
+      --goldlight: #e8d4a8;
+      --cream: #f5f0e8;
+      --muted: #7a849e;
+      --accent: #5b7fce;
+      --glow: rgba(200, 169, 110, 0.15);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      background: var(--void);
+      color: var(--cream);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 3rem;
+      background: transparent;
+    }
+    .nav-logo {
+      font-size: 1.4rem;
+      letter-spacing: 0.18em;
+      color: var(--gold);
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--cream); }
+
+    .mobile-back {
+      display: none;
+      padding: 1rem 1.5rem;
+      padding-top: 5rem;
+      text-align: center;
+    }
+    .mobile-back a {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-decoration: none;
+    }
+
+    /* ── SIDEBAR SCALE INDICATOR ── */
+    .scale-sidebar {
+      position: fixed;
+      left: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 150;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: flex-start;
+    }
+    .scale-dot {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      cursor: pointer;
+      transition: opacity 0.3s;
+      opacity: 0.35;
+    }
+    .scale-dot.active { opacity: 1; }
+    .scale-dot-marker {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: background 0.3s, transform 0.3s;
+      flex-shrink: 0;
+    }
+    .scale-dot.active .scale-dot-marker {
+      background: var(--gold);
+      transform: scale(1.6);
+      box-shadow: 0 0 8px rgba(200,169,110,0.6);
+    }
+    .scale-dot-label {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.55rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+      transition: color 0.3s;
+    }
+    .scale-dot.active .scale-dot-label { color: var(--gold); }
+
+    /* Current level display */
+    .scale-current {
+      position: fixed;
+      right: 2rem;
+      top: 50%;
+      transform: translateY(-50%) rotate(90deg);
+      transform-origin: center;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.4;
+      transition: opacity 0.3s;
+      z-index: 150;
+      pointer-events: none;
+    }
+
+    /* ── SCALE SECTIONS ── */
+    .scale-section {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Alternating backgrounds */
+    .scale-section:nth-child(odd)  { background: var(--void); }
+    .scale-section:nth-child(even) { background: var(--deep); }
+
+    .section-content {
+      position: relative;
+      z-index: 10;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 6rem 2rem 4rem;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .section-content.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .level-label {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.62rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.75rem;
+      opacity: 0.7;
+    }
+    .level-num {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.55rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+      opacity: 0.5;
+    }
+    .level-name {
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      font-weight: normal;
+      color: var(--cream);
+      margin-bottom: 1rem;
+      letter-spacing: -0.01em;
+    }
+    .level-insight {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 2.5rem;
+      opacity: 0.8;
+    }
+    .level-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      text-align: left;
+    }
+    .level-card {
+      background: rgba(19,24,41,0.6);
+      border: 1px solid var(--ring);
+      padding: 1.25rem;
+    }
+    .level-card-label {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.58rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.6rem;
+      opacity: 0.6;
+    }
+    .level-card p {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    /* ── ORBIT VISUALS (each level has its own) ── */
+    .orbit-bg {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0.4;
+    }
+    .orbit-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid;
+      transform-origin: center;
+    }
+
+    /* Level 1 — Particle: tiny, fast, gold */
+    #level-particle .orbit-ring-a { width: 60px; height: 60px; border-color: rgba(200,169,110,0.8); animation: spin 3s linear infinite; }
+    #level-particle .orbit-ring-b { width: 100px; height: 100px; border-color: rgba(200,169,110,0.4); animation: spin-r 5s linear infinite; }
+    #level-particle .orbit-core { width: 8px; height: 8px; border-radius: 50%; background: var(--goldlight); box-shadow: 0 0 20px var(--gold); animation: pulse 1.5s ease-in-out infinite; }
+
+    /* Level 2 — Atom: medium, blue-gold mix */
+    #level-atom .orbit-ring-a { width: 100px; height: 100px; border-color: rgba(91,127,206,0.7); animation: spin 5s linear infinite; }
+    #level-atom .orbit-ring-b { width: 180px; height: 180px; border-color: rgba(200,169,110,0.4); animation: spin-r 9s linear infinite; }
+    #level-atom .orbit-ring-c { width: 260px; height: 260px; border-color: rgba(91,127,206,0.25); animation: spin 15s linear infinite; }
+    #level-atom .orbit-core { width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle, var(--goldlight), var(--accent)); box-shadow: 0 0 25px var(--accent); animation: pulse 2s ease-in-out infinite; }
+
+    /* Level 3 — Molecule: chain-like clusters */
+    #level-molecule .orbit-ring-a { width: 150px; height: 150px; border-color: rgba(200,169,110,0.5); animation: spin 7s linear infinite; border-style: dashed; }
+    #level-molecule .orbit-ring-b { width: 280px; height: 280px; border-color: rgba(91,127,206,0.3); animation: spin-r 13s linear infinite; }
+    #level-molecule .orbit-ring-c { width: 420px; height: 420px; border-color: rgba(200,169,110,0.12); animation: spin 25s linear infinite; }
+    #level-molecule .orbit-core { width: 14px; height: 14px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 30px rgba(200,169,110,0.7); animation: pulse 2.5s ease-in-out infinite; }
+
+    /* Level 4 — Cell: organic, slower */
+    #level-cell .orbit-ring-a { width: 200px; height: 200px; border-color: rgba(200,169,110,0.4); animation: spin 12s linear infinite; }
+    #level-cell .orbit-ring-b { width: 360px; height: 360px; border-color: rgba(91,127,206,0.2); animation: spin-r 20s linear infinite; }
+    #level-cell .orbit-ring-c { width: 540px; height: 540px; border-color: rgba(200,169,110,0.08); animation: spin 35s linear infinite; }
+    #level-cell .orbit-core { width: 18px; height: 18px; border-radius: 50%; background: radial-gradient(circle, var(--goldlight), var(--gold)); box-shadow: 0 0 40px rgba(200,169,110,0.6); animation: pulse 3s ease-in-out infinite; }
+
+    /* Level 5 — Organism: large, majestic */
+    #level-organism .orbit-ring-a { width: 280px; height: 280px; border-color: rgba(91,127,206,0.35); animation: spin 18s linear infinite; }
+    #level-organism .orbit-ring-b { width: 480px; height: 480px; border-color: rgba(200,169,110,0.15); animation: spin-r 30s linear infinite; }
+    #level-organism .orbit-ring-c { width: 700px; height: 700px; border-color: rgba(91,127,206,0.08); animation: spin 50s linear infinite; }
+    #level-organism .orbit-core { width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle, #fff, var(--goldlight), var(--gold)); box-shadow: 0 0 50px rgba(200,169,110,0.8); animation: pulse 3.5s ease-in-out infinite; }
+
+    /* Level 6 — Society: vast, slow */
+    #level-society .orbit-ring-a { width: 350px; height: 350px; border-color: rgba(200,169,110,0.2); animation: spin 25s linear infinite; }
+    #level-society .orbit-ring-b { width: 580px; height: 580px; border-color: rgba(91,127,206,0.12); animation: spin-r 40s linear infinite; }
+    #level-society .orbit-ring-c { width: 900px; height: 900px; border-color: rgba(200,169,110,0.05); animation: spin 70s linear infinite; }
+    #level-society .orbit-core { width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle, var(--goldlight), var(--gold), rgba(200,169,110,0.3)); box-shadow: 0 0 60px rgba(200,169,110,0.5); animation: pulse 4s ease-in-out infinite; }
+
+    /* Level 7 — Cosmos: infinite, ethereal */
+    #level-cosmos .orbit-ring-a { width: 460px; height: 460px; border-color: rgba(91,127,206,0.15); animation: spin 40s linear infinite; }
+    #level-cosmos .orbit-ring-b { width: 750px; height: 750px; border-color: rgba(200,169,110,0.08); animation: spin-r 65s linear infinite; }
+    #level-cosmos .orbit-ring-c { width: 1100px; height: 1100px; border-color: rgba(91,127,206,0.04); animation: spin 100s linear infinite; }
+    #level-cosmos .orbit-core { width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle, #fff 0%, var(--goldlight) 30%, var(--gold) 60%, transparent 100%); box-shadow: 0 0 80px rgba(200,169,110,0.6), 0 0 160px rgba(91,127,206,0.3); animation: pulse 5s ease-in-out infinite; }
+
+    /* Stars for hero */
+    .stars {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 12% 25%, rgba(255,255,255,0.35) 0%, transparent 100%),
+        radial-gradient(1px 1px at 78% 12%, rgba(255,255,255,0.25) 0%, transparent 100%),
+        radial-gradient(1px 1px at 45% 68%, rgba(255,255,255,0.2) 0%, transparent 100%),
+        radial-gradient(1px 1px at 88% 52%, rgba(255,255,255,0.15) 0%, transparent 100%),
+        radial-gradient(2px 2px at 20% 80%, rgba(200,169,110,0.2) 0%, transparent 100%),
+        radial-gradient(1px 1px at 62% 35%, rgba(91,127,206,0.2) 0%, transparent 100%);
+    }
+
+    @keyframes spin    { from { transform: rotate(0deg); }   to { transform: rotate(360deg); } }
+    @keyframes spin-r  { from { transform: rotate(0deg); }   to { transform: rotate(-360deg); } }
+    @keyframes pulse   {
+      0%,100% { transform: scale(1); }
+      50%     { transform: scale(1.35); }
+    }
+
+    /* dots on orbit rings */
+    .orbit-ring::before {
+      content: '';
+      position: absolute;
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--gold);
+      top: -2px; left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 6px var(--gold);
+    }
+
+    /* ── FINAL SECTION ── */
+    #level-you {
+      background: var(--mid);
+      border-top: 1px solid var(--ring);
+    }
+    .you-content {
+      position: relative;
+      z-index: 10;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 8rem 2rem;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .you-content.visible { opacity: 1; transform: translateY(0); }
+    .you-eyebrow {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+    }
+    .you-title {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: normal;
+      color: var(--cream);
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+    }
+    .you-body {
+      font-size: 1.05rem;
+      color: var(--muted);
+      line-height: 1.85;
+      margin-bottom: 2.5rem;
+      font-style: italic;
+    }
+    .you-body em { color: var(--gold); font-style: normal; }
+    .you-cta {
+      display: inline-block;
+      padding: 0.85rem 2.5rem;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      text-decoration: none;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      transition: background 0.35s, color 0.35s, box-shadow 0.35s;
+    }
+    .you-cta:hover { background: var(--gold); color: var(--void); box-shadow: 0 0 40px rgba(200,169,110,0.4); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--void);
+      border-top: 1px solid var(--ring);
+      padding: 2.5rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-logo {
+      font-size: 1rem;
+      letter-spacing: 0.18em;
+      color: var(--gold);
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .footer-copy {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+    .footer-tagline {
+      font-style: italic;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .mobile-back { display: block; }
+      .scale-sidebar { display: none; }
+      .scale-current { display: none; }
+      .level-body { grid-template-columns: 1fr; }
+      footer { flex-direction: column; text-align: center; }
+      .orbit-bg { opacity: 0.2; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">Whollon</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="explore.html">Explore</a></li>
+    <li><a href="journey.html" class="active">Journey</a></li>
+    <li><a href="play.html">Emergence</a></li>
+  </ul>
+</nav>
+
+<div class="mobile-back"><a href="index.html">← Back to Whollon</a></div>
+
+<!-- SCALE SIDEBAR -->
+<nav class="scale-sidebar" aria-label="Scale navigation">
+  <div class="scale-dot active" data-target="level-particle" onclick="scrollToLevel('level-particle')">
+    <div class="scale-dot-marker"></div>
+    <span class="scale-dot-label">Particle</span>
+  </div>
+  <div class="scale-dot" data-target="level-atom" onclick="scrollToLevel('level-atom')">
+    <div class="scale-dot-marker"></div>
+    <span class="scale-dot-label">Atom</span>
+  </div>
+  <div class="scale-dot" data-target="level-molecule" onclick="scrollToLevel('level-molecule')">
+    <div class="scale-dot-marker"></div>
+    <span class="scale-dot-label">Molecule</span>
+  </div>
+  <div class="scale-dot" data-target="level-cell" onclick="scrollToLevel('level-cell')">
+    <div class="scale-dot-marker"></div>
+    <span class="scale-dot-label">Cell</span>
+  </div>
+  <div class="scale-dot" data-target="level-organism" onclick="scrollToLevel('level-organism')">
+    <div class="scale-dot-marker"></div>
+    <span class="scale-dot-label">Organism</span>
+  </div>
+  <div class="scale-dot" data-target="level-society" onclick="scrollToLevel('level-society')">
+    <div class="scale-dot-marker"></div>
+    <span class="scale-dot-label">Society</span>
+  </div>
+  <div class="scale-dot" data-target="level-cosmos" onclick="scrollToLevel('level-cosmos')">
+    <div class="scale-dot-marker"></div>
+    <span class="scale-dot-label">Cosmos</span>
+  </div>
+  <div class="scale-dot" data-target="level-you" onclick="scrollToLevel('level-you')">
+    <div class="scale-dot-marker"></div>
+    <span class="scale-dot-label">You</span>
+  </div>
+</nav>
+
+<div class="scale-current" id="currentLabel">Particle</div>
+
+<!-- ── LEVEL 1: PARTICLE ── -->
+<section class="scale-section" id="level-particle">
+  <div class="stars"></div>
+  <div class="orbit-bg">
+    <div class="orbit-ring orbit-ring-b" style="position:absolute;border-radius:50%;border:1px solid rgba(200,169,110,0.4);width:100px;height:100px;animation:spin-r 5s linear infinite;"></div>
+    <div class="orbit-ring orbit-ring-a" style="position:absolute;border-radius:50%;border:1px solid rgba(200,169,110,0.8);width:60px;height:60px;animation:spin 3s linear infinite;"></div>
+    <div style="position:absolute;width:8px;height:8px;border-radius:50%;background:var(--goldlight);box-shadow:0 0 20px var(--gold);animation:pulse 1.5s ease-in-out infinite;"></div>
+  </div>
+  <div class="section-content">
+    <p class="level-num">Level 01 of 07</p>
+    <p class="level-label">The Smallest Known Whole</p>
+    <h2 class="level-name">Particle</h2>
+    <p class="level-insight">Even here, at the edge of the measurable, a holon exists.</p>
+    <div class="level-body">
+      <div class="level-card">
+        <p class="level-card-label">Its Wholeness</p>
+        <p>A subatomic particle is a complete system — defined by its own properties: spin, charge, mass. It is not a fragment; it is a self-consistent whole with a describable interior logic.</p>
+      </div>
+      <div class="level-card">
+        <p class="level-card-label">Its Partness</p>
+        <p>It belongs to atoms, to fields, to quantum relationships that stretch across space. It cannot be understood in total isolation — its meaning arises from its context.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── LEVEL 2: ATOM ── -->
+<section class="scale-section" id="level-atom">
+  <div class="orbit-bg">
+    <div style="position:absolute;width:260px;height:260px;border-radius:50%;border:1px solid rgba(91,127,206,0.25);animation:spin 15s linear infinite;"></div>
+    <div style="position:absolute;width:180px;height:180px;border-radius:50%;border:1px solid rgba(200,169,110,0.4);animation:spin-r 9s linear infinite;"></div>
+    <div style="position:absolute;width:100px;height:100px;border-radius:50%;border:1px solid rgba(91,127,206,0.7);animation:spin 5s linear infinite;"></div>
+    <div style="position:absolute;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle,var(--goldlight),var(--accent));box-shadow:0 0 25px var(--accent);animation:pulse 2s ease-in-out infinite;"></div>
+  </div>
+  <div class="section-content">
+    <p class="level-num">Level 02 of 07</p>
+    <p class="level-label">Structure from Relationship</p>
+    <h2 class="level-name">Atom</h2>
+    <p class="level-insight">A new whole emerges — more than the sum of its particles.</p>
+    <div class="level-body">
+      <div class="level-card">
+        <p class="level-card-label">Its Wholeness</p>
+        <p>An atom has a stable identity — a nucleus, orbiting electrons, a characteristic behavior. Carbon is carbon. It responds to the world with coherent, consistent selfhood.</p>
+      </div>
+      <div class="level-card">
+        <p class="level-card-label">Its Partness</p>
+        <p>Atoms bond. They cannot exist in isolation from the conditions that formed them — stars, nebulae, the slow accumulation of cosmic time. They are always already embedded.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── LEVEL 3: MOLECULE ── -->
+<section class="scale-section" id="level-molecule">
+  <div class="orbit-bg">
+    <div style="position:absolute;width:420px;height:420px;border-radius:50%;border:1px solid rgba(200,169,110,0.12);animation:spin 25s linear infinite;"></div>
+    <div style="position:absolute;width:280px;height:280px;border-radius:50%;border:1px solid rgba(91,127,206,0.3);animation:spin-r 13s linear infinite;"></div>
+    <div style="position:absolute;width:150px;height:150px;border-radius:50%;border:1px dashed rgba(200,169,110,0.5);animation:spin 7s linear infinite;"></div>
+    <div style="position:absolute;width:14px;height:14px;border-radius:50%;background:var(--gold);box-shadow:0 0 30px rgba(200,169,110,0.7);animation:pulse 2.5s ease-in-out infinite;"></div>
+  </div>
+  <div class="section-content">
+    <p class="level-num">Level 03 of 07</p>
+    <p class="level-label">Where Chemistry Becomes Identity</p>
+    <h2 class="level-name">Molecule</h2>
+    <p class="level-insight">Atoms join and something genuinely new comes into being.</p>
+    <div class="level-body">
+      <div class="level-card">
+        <p class="level-card-label">Its Wholeness</p>
+        <p>A water molecule (H₂O) has properties neither hydrogen nor oxygen possesses alone — it is wet, it flows, it sustains life. The molecule is a new kind of whole, with emergent identity.</p>
+      </div>
+      <div class="level-card">
+        <p class="level-card-label">Its Partness</p>
+        <p>Molecules assemble into organelles, membranes, and structures. They participate in chemistry far larger than themselves. Their belonging is what makes biology possible.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── LEVEL 4: CELL ── -->
+<section class="scale-section" id="level-cell">
+  <div class="orbit-bg">
+    <div style="position:absolute;width:540px;height:540px;border-radius:50%;border:1px solid rgba(200,169,110,0.08);animation:spin 35s linear infinite;"></div>
+    <div style="position:absolute;width:360px;height:360px;border-radius:50%;border:1px solid rgba(91,127,206,0.2);animation:spin-r 20s linear infinite;"></div>
+    <div style="position:absolute;width:200px;height:200px;border-radius:50%;border:1px solid rgba(200,169,110,0.4);animation:spin 12s linear infinite;"></div>
+    <div style="position:absolute;width:18px;height:18px;border-radius:50%;background:radial-gradient(circle,var(--goldlight),var(--gold));box-shadow:0 0 40px rgba(200,169,110,0.6);animation:pulse 3s ease-in-out infinite;"></div>
+  </div>
+  <div class="section-content">
+    <p class="level-num">Level 04 of 07</p>
+    <p class="level-label">The First Living Whole</p>
+    <h2 class="level-name">Cell</h2>
+    <p class="level-insight">Here, for the first time: something that maintains itself.</p>
+    <div class="level-body">
+      <div class="level-card">
+        <p class="level-card-label">Its Wholeness</p>
+        <p>A cell is alive. It metabolizes, replicates, responds to environment. It maintains a boundary between inside and outside. This is radical self-hood — the original holon of biology.</p>
+      </div>
+      <div class="level-card">
+        <p class="level-card-label">Its Partness</p>
+        <p>Most cells are part of something larger: a tissue, an organ, a body. The neuron serves the brain; the liver cell serves the organism. Belonging enables complexity at the next level up.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── LEVEL 5: ORGANISM ── -->
+<section class="scale-section" id="level-organism">
+  <div class="orbit-bg">
+    <div style="position:absolute;width:700px;height:700px;border-radius:50%;border:1px solid rgba(91,127,206,0.08);animation:spin 50s linear infinite;"></div>
+    <div style="position:absolute;width:480px;height:480px;border-radius:50%;border:1px solid rgba(200,169,110,0.15);animation:spin-r 30s linear infinite;"></div>
+    <div style="position:absolute;width:280px;height:280px;border-radius:50%;border:1px solid rgba(91,127,206,0.35);animation:spin 18s linear infinite;"></div>
+    <div style="position:absolute;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle,#fff,var(--goldlight),var(--gold));box-shadow:0 0 50px rgba(200,169,110,0.8);animation:pulse 3.5s ease-in-out infinite;"></div>
+  </div>
+  <div class="section-content">
+    <p class="level-num">Level 05 of 07</p>
+    <p class="level-label">You Are Here (Almost)</p>
+    <h2 class="level-name">Organism</h2>
+    <p class="level-insight">Trillions of cells, one coherent being — a miracle of holonic nesting.</p>
+    <div class="level-body">
+      <div class="level-card">
+        <p class="level-card-label">Its Wholeness</p>
+        <p>You are an organism. Your body is a unified system — coordinated, self-regulating, purposive. Every cell defers to the whole while remaining fully itself. You are the whole they serve.</p>
+      </div>
+      <div class="level-card">
+        <p class="level-card-label">Its Partness</p>
+        <p>No organism exists alone. You breathe air produced by plants, eat food grown from soil, depend on a microbiome that outnumbers your cells. You are always already embedded in ecology.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── LEVEL 6: SOCIETY ── -->
+<section class="scale-section" id="level-society">
+  <div class="orbit-bg">
+    <div style="position:absolute;width:900px;height:900px;border-radius:50%;border:1px solid rgba(200,169,110,0.05);animation:spin 70s linear infinite;"></div>
+    <div style="position:absolute;width:580px;height:580px;border-radius:50%;border:1px solid rgba(91,127,206,0.12);animation:spin-r 40s linear infinite;"></div>
+    <div style="position:absolute;width:350px;height:350px;border-radius:50%;border:1px solid rgba(200,169,110,0.2);animation:spin 25s linear infinite;"></div>
+    <div style="position:absolute;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle,var(--goldlight),var(--gold),rgba(200,169,110,0.3));box-shadow:0 0 60px rgba(200,169,110,0.5);animation:pulse 4s ease-in-out infinite;"></div>
+  </div>
+  <div class="section-content">
+    <p class="level-num">Level 06 of 07</p>
+    <p class="level-label">The Whole That Holds Us</p>
+    <h2 class="level-name">Society</h2>
+    <p class="level-insight">Persons form collectives; collectives develop their own character.</p>
+    <div class="level-body">
+      <div class="level-card">
+        <p class="level-card-label">Its Wholeness</p>
+        <p>A culture, a city, a civilization — these have identities that outlast any individual. They develop language, memory, shared values. Society is a holon: irreducibly its own kind of thing.</p>
+      </div>
+      <div class="level-card">
+        <p class="level-card-label">Its Partness</p>
+        <p>No society is an island. Cultures exchange, clash, evolve together. Human civilization is itself a subsystem of the biosphere, constrained by and embedded in ecological limits.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── LEVEL 7: COSMOS ── -->
+<section class="scale-section" id="level-cosmos">
+  <div class="stars"></div>
+  <div class="orbit-bg" style="opacity:0.3;">
+    <div style="position:absolute;width:1100px;height:1100px;border-radius:50%;border:1px solid rgba(91,127,206,0.04);animation:spin 100s linear infinite;"></div>
+    <div style="position:absolute;width:750px;height:750px;border-radius:50%;border:1px solid rgba(200,169,110,0.08);animation:spin-r 65s linear infinite;"></div>
+    <div style="position:absolute;width:460px;height:460px;border-radius:50%;border:1px solid rgba(91,127,206,0.15);animation:spin 40s linear infinite;"></div>
+    <div style="position:absolute;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle,#fff 0%,var(--goldlight) 30%,var(--gold) 60%,transparent 100%);box-shadow:0 0 80px rgba(200,169,110,0.6),0 0 160px rgba(91,127,206,0.3);animation:pulse 5s ease-in-out infinite;"></div>
+  </div>
+  <div class="section-content">
+    <p class="level-num">Level 07 of 07</p>
+    <p class="level-label">The Whole We Cannot Fully See</p>
+    <h2 class="level-name">Cosmos</h2>
+    <p class="level-insight">The largest holon we know — and perhaps itself a part of something more.</p>
+    <div class="level-body">
+      <div class="level-card">
+        <p class="level-card-label">Its Wholeness</p>
+        <p>The universe has laws, constants, a coherent structure. From quantum fields to galactic filaments, it is one system — self-consistent, intelligible, and astonishingly ordered.</p>
+      </div>
+      <div class="level-card">
+        <p class="level-card-label">Its Partness</p>
+        <p>Cosmologists speak of the multiverse. Whether true or not, the question itself is holonic: is the cosmos a whole unto itself, or a part of something unimaginably larger? The pattern suggests: both.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FINAL: YOU ARE HERE ── -->
+<section class="scale-section" id="level-you" style="background:var(--mid);border-top:1px solid var(--ring);">
+  <div class="you-content">
+    <p class="you-eyebrow">The Scale of Being</p>
+    <h2 class="you-title">You Are Here</h2>
+    <p class="you-body">
+      At every scale — from the quantum flicker of a particle to the slow turn of a galaxy — the same pattern holds. <em>A whole. A part. Both at once.</em>
+    </p>
+    <p class="you-body">
+      You are nested within this structure, at the level of organism and person. You contain multitudes below: <em>trillions of cells</em>, each a living whole. You are contained within multitudes above: family, community, civilization, biosphere, cosmos.
+    </p>
+    <p class="you-body">
+      You did not choose this position. But you can choose how to inhabit it. That is what it means to live as a <em>Whollon</em>.
+    </p>
+    <a href="index.html" class="you-cta">Return to the Beginning</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="index.html" class="footer-logo">Whollon</a>
+  <p class="footer-tagline">Whole in yourself. Part of everything.</p>
+  <p class="footer-copy">© 2026 Whollon.com</p>
+</footer>
+
+<script>
+  // IntersectionObserver for fade-in and sidebar indicator
+  const sections = document.querySelectorAll('.scale-section');
+  const dots = document.querySelectorAll('.scale-dot');
+  const currentLabel = document.getElementById('currentLabel');
+
+  const sectionIds = Array.from(sections).map(s => s.id);
+
+  // Fade-in for content
+  const fadeObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const content = entry.target.querySelector('.section-content, .you-content');
+        if (content) content.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.2 });
+
+  sections.forEach(s => fadeObserver.observe(s));
+
+  // Sidebar indicator
+  const indicatorObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        dots.forEach(d => {
+          d.classList.toggle('active', d.dataset.target === id);
+        });
+        const activeDot = document.querySelector(`.scale-dot[data-target="${id}"]`);
+        if (activeDot) {
+          currentLabel.textContent = activeDot.querySelector('.scale-dot-label').textContent;
+        }
+      }
+    });
+  }, { threshold: 0.5 });
+
+  sections.forEach(s => indicatorObserver.observe(s));
+
+  function scrollToLevel(id) {
+    document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>

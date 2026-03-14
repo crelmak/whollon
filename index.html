@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Whollon — Whole in Yourself. Part of Everything.</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%2305060a'/><circle cx='16' cy='16' r='12' fill='none' stroke='%23c8a96e' stroke-width='1.5'/><circle cx='16' cy='16' r='6.5' fill='none' stroke='%23c8a96e' stroke-width='1'/><circle cx='16' cy='16' r='3' fill='%23c8a96e'/></svg>" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -38,7 +39,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 1.25rem 3rem;
-      background: linear-gradient(to bottom, rgba(5,6,10,0.95), transparent);
+      background: transparent;
     }
     .nav-logo {
       font-size: 1.4rem;
@@ -465,10 +466,60 @@
       color: var(--muted);
     }
 
+    /* ── SECTION SIDEBAR ── */
+    .section-sidebar {
+      position: fixed;
+      left: 1.5rem;
+      right: auto;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 150;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 0.6rem;
+      padding: 0;
+    }
+    .section-dot {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      cursor: pointer;
+      text-decoration: none;
+      opacity: 0.3;
+      transition: opacity 0.3s;
+    }
+    .section-dot:hover { opacity: 0.7; }
+    .section-dot.active { opacity: 1; }
+    .section-dot-marker {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--muted);
+      flex-shrink: 0;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .section-dot.active .section-dot-marker {
+      background: var(--gold);
+      transform: scale(1.6);
+      box-shadow: 0 0 8px rgba(200,169,110,0.6);
+    }
+    .section-dot-label {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.55rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+      transition: color 0.3s;
+    }
+    .section-dot.active .section-dot-label { color: var(--gold); }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
       nav { padding: 1rem 1.5rem; }
       .nav-links { display: none; }
+      .section-sidebar { display: none; }
       .what-grid { grid-template-columns: 1fr; gap: 3rem; }
       .pillars-grid { grid-template-columns: 1fr; }
       .pillar { border-right: none; border-bottom: 1px solid var(--ring); }
@@ -485,10 +536,31 @@
 <nav>
   <div class="nav-logo">Whollon</div>
   <ul class="nav-links">
-    <li><a href="#what">The Concept</a></li>
-    <li><a href="#pillars">Pillars</a></li>
-    <li><a href="#manifesto">Manifesto</a></li>
+    <li><a href="index.html" class="active">Home</a></li>
+    <li><a href="explore.html">Explore</a></li>
+    <li><a href="journey.html">Journey</a></li>
+    <li><a href="play.html">Emergence</a></li>
   </ul>
+</nav>
+
+<!-- SECTION SIDEBAR -->
+<nav class="section-sidebar" aria-label="Page sections">
+  <a class="section-dot active" href="#hero" data-target="hero">
+    <div class="section-dot-marker"></div>
+    <span class="section-dot-label">Home</span>
+  </a>
+  <a class="section-dot" href="#what" data-target="what">
+    <div class="section-dot-marker"></div>
+    <span class="section-dot-label">The Concept</span>
+  </a>
+  <a class="section-dot" href="#pillars" data-target="pillars">
+    <div class="section-dot-marker"></div>
+    <span class="section-dot-label">Pillars</span>
+  </a>
+  <a class="section-dot" href="#manifesto" data-target="manifesto">
+    <div class="section-dot-marker"></div>
+    <span class="section-dot-label">Manifesto</span>
+  </a>
 </nav>
 
 <!-- HERO -->
@@ -632,5 +704,21 @@
   <p class="footer-copy">© 2026 Whollon. All scales reserved.</p>
 </footer>
 
+<script>
+  const sectionDots = document.querySelectorAll('.section-dot');
+  const trackedSections = document.querySelectorAll('#hero, #what, #pillars, #manifesto');
+
+  const sidebarObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        sectionDots.forEach(d => d.classList.remove('active'));
+        const active = document.querySelector(`.section-dot[data-target="${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.4 });
+
+  trackedSections.forEach(s => sidebarObserver.observe(s));
+</script>
 </body>
 </html>
